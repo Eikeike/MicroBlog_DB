@@ -1,21 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import { NavigationContainer } from '@react-navigation/native';
+import { Provider as PaperProvider } from 'react-native-paper';
+
+import React, {useState} from 'react';
+import {  
+        Dimensions,
+        StatusBar,
+        StyleSheet, 
+        Text, 
+        TouchableOpacity,
+        View,
+        SafeAreaView,
+        Platform, 
+        TextInput} from 'react-native';
+import AppNavContainer from './app/navigations';
 
 export default function App() {
+  const [text, onChangeText] = useState('');
+
+
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <PaperProvider>
+    <AppNavContainer/>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#fff",
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "column",
+    alignItems: "center",
+    top: Platform.OS === 'android' ? StatusBar.currentHeight + 20 : 0,
   },
+  input:{
+    height: '100%',
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+  inputBox:{
+    height:120,
+    width: '90%'
+  }
 });
