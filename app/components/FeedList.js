@@ -6,12 +6,15 @@ import Post from './Post'
 import { theme } from '../core/theme'
 import { useNavigation } from '@react-navigation/core';
 
-
+/**
+ * Takes an array of Post objects and creates a FlatList containing those objects
+ * @param {*} props Pass the feed to props.feed in order to generate a feed list. Styling props can be passed after that 
+ * @returns A FlatList JSX-component with the feed that is passed as an array of posts
+ */
 const FeedList = (props) => {
 const navigation = useNavigation();
 
     const renderPost = ({item}) => {
-
             return (
                 //calls the navigateCallback function described in RootNavigator, where the List is instanciated for the RootNavigator
                 <>

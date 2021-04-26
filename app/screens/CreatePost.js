@@ -1,30 +1,53 @@
 import React, {useState, useCallback, createRef} from 'react'
-import { ScrollView, StyleSheet, Text, TextInput, Alert, BackHandler, KeyboardAvoidingView } from 'react-native'
+import { ScrollView, StyleSheet, Text, TextInput, Alert, View, KeyboardAvoidingView, Platform } from 'react-native'
 import {useFocusEffect} from '@react-navigation/native'
 import {Button} from 'react-native-paper'
 import { theme } from '../core/theme'
 
-
-const submitPost = () => {
-    return (<Button 
-        mode={'contained'} 
-        style={styles.button}
-        color={theme.colors.primary}>Post</Button>)
-}
-
-
 const CreatePost = ({route, navigation}) => {
 
     const [text, setText] = useState('');
-    const textRef = createRef();
+
+    //Set the button into the header bar
+    React.useLayoutEffect(() => {
+      navigation.setOptions({ headerRight: headerBarButton});
+    }, [navigation, text]);
+
+    //Button handler (
+    const headerBarButton = () => {
+      return (<Button 
+          mode={'contained'} 
+          style={styles.button}
+          color={theme.colors.primary}
+          onPress={createPost}>Post</Button>)
+    }
+
+    const createPost = () => {
+      if(!text){
+        Alert.alert(
+          'Empty post',
+          'Please write a text that can be posted',
+          [
+            {text: "Got it, chief", style: 'cancel'}
+          ]
+        )
+      }
+      console.log(`got ${text}`);
+      navigation.goBack();
+    }
 
     React.useEffect(
-        () =>
+        () =>{
+          if(Platform.OS === 'web')
+          {
+            return;
+          }
           navigation.addListener('beforeRemove', (e) => {   
             // Prevent default behavior of leaving the screen
             e.preventDefault();
     
             // Prompt the user before leaving the screen
+            //=============TODO: add fixed strings from a file==================
             Alert.alert(
               'Delete post?',
               'You have unsaved changes. Your post will be gone forever. Are you sure?',
@@ -41,6 +64,7 @@ const CreatePost = ({route, navigation}) => {
             );
           }),
         [navigation]
+        }
       );
 
     return (
@@ -49,9 +73,9 @@ const CreatePost = ({route, navigation}) => {
             style={styles.container}
             contentContainerStyle={{flexGrow: 1}}
             keyboardShouldPersistTaps='always'>
+              <View><Text>{text}</Text></View>
                 <TextInput
-                ref={textRef}
-                onChangeText={setText}
+                onChangeText={text => setText(text)}
                 autoFocus={true}
                 value={text}
                 placeholder="Type your post here..."
@@ -84,4 +108,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export {CreatePost, submitPost}
+export {CreatePost}

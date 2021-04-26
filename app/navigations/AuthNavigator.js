@@ -80,8 +80,7 @@ const AuthNavigator = () => {
 
                 dispatch({type: 'SIGN_OUT'});
             },
-            userName: 'AlsObDasGeht'
-
+            userName: 'eikewobken'
         }),
         []
     )

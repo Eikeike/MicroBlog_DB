@@ -3,16 +3,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import React, {useState} from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import Feed from '../screens/Feed'
+import UserScreen from '../screens/UserScreen'
 import { theme } from '../core/theme'
 
-
-const Posts = () =>{
-    return (
-        <View>
-            <Text>Posts</Text>
-        </View>
-    )
-}
 const Search = () =>{
     return (
         <View>
@@ -20,17 +13,10 @@ const Search = () =>{
         </View>
     )
 }
-const UserDetail = () =>{
-    return (
-        <View>
-            <Text>UserDetail</Text>
-        </View>
-    )
-}
+
 const TabNavigator = () => {
 
     const Tab = createMaterialBottomTabNavigator();
-
 
     return (
         <Tab.Navigator
@@ -64,10 +50,10 @@ const TabNavigator = () => {
         }}
         />
         <Tab.Screen
-        name="User"
-        component={UserDetail}
+        name="Me"
+        component={UserScreen}
         options={{
-            tabBarLabel: 'Search',
+            tabBarLabel: 'User',
             tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons name="account" color={color} size={26} />
           ),

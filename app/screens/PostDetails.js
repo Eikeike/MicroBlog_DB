@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Text, View, ScrollView, TouchableHighlight, Dimensions } from 'react-native'
-import {Divider, Avatar} from 'react-native-paper'
+import {Divider, Avatar, TextInput} from 'react-native-paper'
 import {theme} from '../core/theme'
 import {comments} from '../dataHelpers/comments'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -45,11 +45,17 @@ const PostDetails = ({route, navigation}) => {
             {post.originalPost !== null && (<Text style={styles.reply}>{`reply to @${post.originalPost.userName}`}</Text>)}
             <View style={styles.userInfo}>
                 <View style={styles.avatarContainer}>
-                    <Avatar.Image size={60} style={styles.avatar} source={require('../assets/accountPic.png')}/>
+                    <TouchableOpacity
+                    onPress={() => {navigation.navigate("UserInfo", {userName: post.userName})}}>
+                        <Avatar.Image size={60} style={styles.avatar} source={require('../assets/accountPic.png')}/>
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.names}>
-                    <Text>{post.name}</Text>
-                    <Text>{`@${post.userName}`}</Text>
+                    <TouchableOpacity 
+                    onPress={() => {navigation.navigate("UserInfo", {userName: post.userName})}}>
+                        <Text style={{fontWeight: 'bold'}}>{post.name}</Text>
+                        <Text>{`@${post.userName}`}</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.post}>
@@ -85,9 +91,10 @@ const PostDetails = ({route, navigation}) => {
     }
 
     return (
-            <View style={styles.comments}>
-                <FeedList feed={comments} ListHeaderComponent={originalPost}></FeedList>
-            </View>
+        <View style={styles.comments}>
+            <FeedList feed={comments} ListHeaderComponent={originalPost}></FeedList>
+        </View>
+        //TODO: Antworten von hier aus ermöglichen
     )
 }
 

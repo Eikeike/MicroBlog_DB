@@ -6,6 +6,7 @@ import FeedList from '../components/FeedList'
 import PostDetails from './PostDetails'
 import { theme } from '../core/theme'
 import {feed} from '../dataHelpers/feed'
+import { Appbar, Divider } from 'react-native-paper';
 
 const FeedStack = createStackNavigator();
 
@@ -24,23 +25,25 @@ const FeedListWithIcon = ({route, navigation}) => {
 
 const FeedStackScreen = () => {
     return(
-    <FeedStack.Navigator screenOptions={{
-        headerShown: true,
-        headerTitle: () => (<MaterialCommunityIcons name="email" color={theme.colors.primary} size={26} />),
-        headerShown: true,
-        headerStyle: 
-        {
-            backgroundColor: theme.colors.background
-        },
-        headerTintColor: theme.colors.primary,
-        headerTitleAlign: 'center'}}>
-        <FeedStack.Screen name={"Feed"} component={FeedListWithIcon}/>
-        <FeedStack.Screen name={"PostDetails"} component={PostDetails}/>
-    </FeedStack.Navigator>
+        <>
+        <Appbar.Header style={styles.appBar}>
+            <Appbar.Content title={<MaterialCommunityIcons name="email" color={theme.colors.primary} size={35}/>} titleStyle={{alignSelf: 'center'}}/>
+        </Appbar.Header>
+        <Divider/>
+        <FeedList feed={feed}/>
+        <TouchableOpacity style={styles.addPostButton} onPress={() => {
+            navigation.navigate("CreatePost");
+        }}>
+                <MaterialCommunityIcons name="pencil-plus" color={'#fff'} size={35} />
+        </TouchableOpacity>
+        </>
     )
 }
 
 const styles = StyleSheet.create({
+    appBar: {
+        backgroundColor: theme.colors.background
+    },
     addPostButton: {
         height: 60,
         width: 60,

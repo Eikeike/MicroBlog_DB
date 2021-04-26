@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/core';
 import React from 'react'
 import { StyleSheet, Text, View, TouchableOpacity} from 'react-native'
 import { Avatar } from 'react-native-paper'
@@ -10,6 +11,8 @@ const Post = (props) => {
     const [liked, setLiked] = React.useState(isLiked);
     const [displayedReposts, setReposts] = React.useState(repostCount);
     const [reposted, setReposted] = React.useState(isReposted);
+
+    const navigation = useNavigation();
 
     const toggleLike = () => {
         if(liked){
@@ -36,16 +39,21 @@ const Post = (props) => {
 
     return (
         <View style={styles.container}>
-                <View style={styles.avatarContainer}>
+                <TouchableOpacity style={styles.avatarContainer} onPress={
+                        () => {navigation.navigate("UserInfo", {userName: userName})}
+                    }>
                     <Avatar.Image size={60} style={styles.avatar} source={require('../assets/accountPic.png')}/>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.rightFromAvatar}>
                     <View style={styles.userAndPost}>
                         {type.includes("repost") && (<Text style={styles.topRowText}>Repost by xxx</Text>)}
-                        <View style={styles.userNameContainer}>
+                        <TouchableOpacity style={styles.userNameContainer} onPress={
+                            () => {
+                                navigation.navigate("UserInfo", {userName: userName})}
+                            }>
                             <Text style={styles.name} numberOfLines={1}>{name}</Text>
                             <Text style={styles.userName}>{userName}</Text>
-                        </View>
+                        </TouchableOpacity>
                         {type.includes("comment") && (<Text style={styles.topRowText}>Answer to ydfxx</Text>)}
                         <Text style={styles.text}>{postText}</Text>
                     </View>

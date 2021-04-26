@@ -10,3 +10,5 @@ const user = {
     tweets: ['_id01', '_id02', 'id03']
     
 }
+
+export {user}
