@@ -5,16 +5,43 @@ import SignUpScreen from './SignUpScreen'
 import TextInput from '../components/TextInput'
 import {theme} from '../core/theme'
 import AuthContext from '../context/AuthContext'
+import {HelperText} from 'react-native-paper'
+import { cos } from 'react-native-reanimated'
 
 const LoginScreen = ({navigation}) => {
     const [userName, setUserName] = useState('');
     const [password, setPassword] = useState('');
     const {signIn} = React.useContext(AuthContext);
+    const [userNameError, setUserNameError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
 
-    const onLoginPressed = () =>{
-        alert(`got ${userName} and ${password}`);
-        signIn({name: userName, password: password});
-        //This function automatically switches to home screen
+    const onLoginPressed = async () =>{
+        
+        setPasswordError('');
+        setUserNameError('');
+        if(userName == '')
+        {
+            setUserNameError("Please insert a username");
+        }
+        else if(password == '')
+        {
+            setPasswordError("Please insert a password");
+        }
+        else
+        {
+            const response = await signIn({userName: userName, password: password});
+            if(response) //This does not mean we succeeded, just saying-
+            {
+                if(response.message.includes('password'))
+                {
+                    setPasswordError(response.message);
+                }
+                else{
+                    setPasswordError('');
+                    setUserNameError(response.message);
+                }
+            }
+        }
     };
 
     return (
@@ -25,12 +52,20 @@ const LoginScreen = ({navigation}) => {
                 onChangeText={text => setUserName(text)}
                 value={userName}
                 />
+                <HelperText type="error" visible={() =>{ return userNameError != ''}}>
+                    {userNameError}
+                </HelperText>
+
                 <TextInput
                 label="Password"
                 onChangeText={text => setPassword(text)}
                 value={password}
                 secureTextEntry
                 />
+                <HelperText type="error" visible={() =>{return passwordError != ''}}>
+                    {passwordError}
+                </HelperText>
+
                 <CustomButton
                 onPress={onLoginPressed}>
                     Login

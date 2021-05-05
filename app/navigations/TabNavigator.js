@@ -5,14 +5,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import Feed from '../screens/Feed'
 import UserScreen from '../screens/UserScreen'
 import { theme } from '../core/theme'
-
-const Search = () =>{
-    return (
-        <View>
-            <Text>Search</Text>
-        </View>
-    )
-}
+import SearchScreen from '../screens/SearchScreen';
 
 const TabNavigator = () => {
 
@@ -40,7 +33,7 @@ const TabNavigator = () => {
         />
         <Tab.Screen
         name="Search"
-        component={Search}
+        component={SearchScreen}
         options={{
             tabBarLabel: 'Search',
             tabBarIcon: ({ color }) => (

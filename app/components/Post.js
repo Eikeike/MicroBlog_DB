@@ -52,7 +52,7 @@ const Post = (props) => {
                                 navigation.navigate("UserInfo", {userName: userName})}
                             }>
                             <Text style={styles.name} numberOfLines={1}>{name}</Text>
-                            <Text style={styles.userName}>{userName}</Text>
+                            <Text style={styles.userName}>{`@${userName}`}</Text>
                         </TouchableOpacity>
                         {type.includes("comment") && (<Text style={styles.topRowText}>Answer to ydfxx</Text>)}
                         <Text style={styles.text}>{postText}</Text>

@@ -3,6 +3,8 @@ import { ScrollView, StyleSheet, Text, TextInput, Alert, View, KeyboardAvoidingV
 import {useFocusEffect} from '@react-navigation/native'
 import {Button} from 'react-native-paper'
 import { theme } from '../core/theme'
+import Post from '../components/Post'
+import callApi from '../core/callApi'
 
 const CreatePost = ({route, navigation}) => {
 
@@ -22,7 +24,7 @@ const CreatePost = ({route, navigation}) => {
           onPress={createPost}>Post</Button>)
     }
 
-    const createPost = () => {
+    const createPost = async () => {
       if(!text){
         Alert.alert(
           'Empty post',
@@ -31,10 +33,37 @@ const CreatePost = ({route, navigation}) => {
             {text: "Got it, chief", style: 'cancel'}
           ]
         )
-      }
-      console.log(`got ${text}`);
-      navigation.goBack();
+      }else{
+        let body = {postText : text}
+        if(route.params)
+        {
+          body.postType = "comment";
+          body.originalPost = route.params.originalPost._id;
+        }
+        else{
+          body.postType = "post";
+          body.originalPost = null;
+        }
+        await callApi('/posts/create', body);
+        
+        if(Platform.OS != 'web')
+        {
+        Alert.alert(
+            'Post created successfully',
+            'It was okay',
+            [{
+              text: "Thanks?",
+              onPress: () => navigation.goBack(),
+              style: "cancel"
+            }]
+          )
+        }
+        else
+        {
+          navigation.goBack();
+        }
     }
+  }
 
     React.useEffect(
         () =>{
@@ -62,18 +91,18 @@ const CreatePost = ({route, navigation}) => {
                 },
               ]
             );
-          }),
-        [navigation]
+          }), [navigation]
         }
-      );
+    );
 
+      //You can pass an original Post as a prop that will be displayed above the text input
     return (
         <KeyboardAvoidingView style={styles.container}>
             <ScrollView
             style={styles.container}
             contentContainerStyle={{flexGrow: 1}}
             keyboardShouldPersistTaps='always'>
-              <View><Text>{text}</Text></View>
+              {route.params && (<Post post={route.params.originalPost}/>)}
                 <TextInput
                 onChangeText={text => setText(text)}
                 autoFocus={true}
@@ -86,9 +115,7 @@ const CreatePost = ({route, navigation}) => {
             </ScrollView>
         </KeyboardAvoidingView>
     )
-}
-
-
+    }
 const styles = StyleSheet.create({
     container:{
         height: '100%',

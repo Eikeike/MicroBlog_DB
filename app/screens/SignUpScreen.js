@@ -5,85 +5,122 @@ import {theme} from '../core/theme'
 import CustomButton from '../components/Button'
 import TextInput from '../components/TextInput'
 import AuthContext from '../context/AuthContext'
-import { StyleSheet, Text, View, KeyboardAvoidingView, TouchableOpacity, Platform } from 'react-native'
-
+import { StyleSheet, Text, ScrollView, View, KeyboardAvoidingView, TouchableOpacity, Platform, Alert } from 'react-native'
+import {HelperText} from 'react-native-paper'
 
 const SignUpScreen = ({navigation}) => {
     const [userName, setUserName] = useState('');
+    const [showUserNameError, setUserNameError] = useState(false);
     const [displayName, setDisplayName] = useState('');
-    const [dateOfBirth, setDoB] = useState({date: new Date(), picked: false});
+    const [showDisplayNameError, setDisplayNameError] = useState(false);
     const [password, setPassword] = useState({firstTry: '', secondTry: ''});
-    const [showDatePicker, setSDP] = useState(false);
     const {signUp} = React.useContext(AuthContext);
 
-    const onSignUpPressed = () =>{
-        alert(`got ${userName} and ${password.firstTry} with ${dateOfBirth.date.toDateString()}`);
-
-        signUp({userName: userName, password: password});
-        //This function automatically switches to home screen
+    const onSignUpPressed = async () =>{
+        if(userName == '')
+        {
+            setUserNameError(true);
+            return;
+        }
+        if(displayName == '')
+        {
+            setDisplayNameError(true);
+            return;
+        }
+        if(!passwordNotMatching())
+        {
+            const response = await signUp({name: displayName, userName: userName, password: password.firstTry});
+            if(response.success)
+            {
+                if(Platform.OS ==='web')
+                {
+                    alert(`Hello ${displayName}, you have been registered successfully!`);
+                    navigation.navigate("Login");
+                }
+                else{
+                    Alert.alert(
+                        "Successful",
+                        "You have been registered as a user for this app!",
+                        [
+                            {
+                            text: "Thanks",
+                            style: "default",
+                            onPress: () => {
+                                navigation.navigate("Login");
+                                }
+                            }
+                        ]
+                    )
+                }
+            }
+            else
+            {
+                if(Platform.OS ==='web')
+                {
+                    alert(`That did not work. Server responded with ${response.message}`);
+                }
+                Alert.alert(
+                    "Oh no",
+                    response.message,
+                    [
+                      {
+                        text: ":(",
+                        style: "default"
+                      }]
+                )
+            }
+        }
     };
 
-    const onDateChange = (event, selectedDate) => {
-        const currentDate = selectedDate || dateOfBirth.date;
-        setSDP(Platform.OS === 'ios');
-        setDoB({date: currentDate, picked: true});
-    }
-
-    const chooseDateString = () => {
-        //show birthday or prompt to pick birthday if it has not been picked yet
-        return dateOfBirth.picked ? 
-        `${dateOfBirth.date.getDate()}/${dateOfBirth.date.getMonth()}/${dateOfBirth.date.getFullYear()}`
-        : "Pick Birthday";
+    const passwordNotMatching = () =>
+    {
+        return (password.secondTry !== '') && (password.firstTry !== password.secondTry);
     }
 
     return (
-        <KeyboardAvoidingView style={styles.container}>
-            <View style={{width: '80%'}}>
-                <TextInput 
-                label="Username (must be unique)"
-                onChangeText={text => setUserName(text)}
-                value={userName}
-                />
-                <TextInput 
-                label="Real name"
-                onChangeText={text => setDisplayName(text)}
-                value={displayName}
-                />
-                <TextInput
-                label="Password"
-                onChangeText={text => setPassword({firstTry: text, ...password})}
-                value={password.password}
-                secureTextEntry
-                />
-                <TextInput
-                label="Repeat Password"
-                onChangeText={text => setPassword({...password, secondTry: text})}
-                value={password.secondTry}
-                secureTextEntry
-                />
-                <View style={styles.datePickRow}>
-                    <MaterialCommunityIcons name="cake-variant" color={theme.colors.secondary} size={26} />
-                    <TouchableOpacity
-                        style={styles.dateTime}
-                        onPress={() => setSDP(true)}>
-                            <Text style={{color: theme.colors.text, fontSize: 17}}>
-                                {chooseDateString()}
-                                </Text>
-                    </TouchableOpacity>
+        <KeyboardAvoidingView style={styles.container} behavior='padding' keyboardVerticalOffset={100}>
+            <ScrollView style={{width: '100%', top: 100}} contentContainerStyle={{alignItems: 'center', justifyContent: 'center'}}>
+                <View style={{width: '80%'}}>
+                    <TextInput 
+                    label="Username (must be unique)"
+                    onChangeText={text => setUserName(text)}
+                    value={userName}
+                    />
+                    <HelperText type="error" visible={showUserNameError}>
+                        Please enter a valid username
+                    </HelperText>
+    
+                    <TextInput 
+                    label="Real name"
+                    onChangeText={text => setDisplayName(text)}
+                    value={displayName}
+                    />
+                    <HelperText type="error" visible={showDisplayNameError}>
+                        Please enter a valid Name
+                    </HelperText>
+    
+                    <TextInput
+                    label="Password"
+                    onChangeText={text => setPassword({...password, firstTry: text})}
+                    value={password.firstTry}
+                    secureTextEntry
+                    />
+                    <TextInput
+                    label="Repeat Password"
+                    onChangeText={text => setPassword({...password, secondTry: text})}
+                    value={password.secondTry}
+                    secureTextEntry
+                    />
+    
+                    <HelperText type="error" visible={passwordNotMatching()}>
+                        Passwords do not match!
+                    </HelperText>
+                    <CustomButton
+                    onPress={onSignUpPressed}>
+                        Sign up
+                    </CustomButton>
                 </View>
-                {
-                showDatePicker && (
-                    <DateTimePicker 
-                        mode='date'
-                        maximumDate={new Date()}
-                        value={dateOfBirth.date}
-                        onChange={onDateChange}/>
-                    )}
-                <CustomButton
-                onPress={onSignUpPressed}>
-                    Sign up
-                </CustomButton>
-            </View>
+            </ScrollView>
         </KeyboardAvoidingView>
     )
 }
@@ -97,22 +134,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: theme.colors.background
     },
-    dateTime: {
-        padding: 20,
-        marginLeft: 20,
-        backgroundColor: theme.colors.background,
-        borderWidth: 1,
-        borderRadius: 5,
-        width: '60%'
-    },
     signUp: {
         color: theme.colors.accent,
         marginLeft: 6
-    },
-    datePickRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingLeft: 15
     }
 })

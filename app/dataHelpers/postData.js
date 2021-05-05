@@ -4,6 +4,7 @@ let data = {
     userName: "eikewobken",
     avatarURL: "../assets/accountPic.png", //materialDesign avatar
     likeCount: 10,
+    likedBy: [],
     repostCount: 6,
     comments: [
         'CommentID_01', 'CommentID_02', 'CommentID03'

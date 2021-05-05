@@ -9,6 +9,8 @@ import {feed} from '../dataHelpers/feed'
 import {CreatePost} from '../screens/CreatePost';
 import TabNavigator from './TabNavigator';
 import UserScreen from '../screens/UserScreen';
+import UsersList from '../components/UsersList'
+import UserListScreen from '../screens/UserListScreen';
 
 const RootStack = createStackNavigator();
 
@@ -19,7 +21,10 @@ const RootNavigator = () => {
     return (
         <RootStack.Navigator mode="modal">
             <RootStack.Screen name={"Main"} options={{headerShown: false}} component={TabNavigator} />
-            <RootStack.Screen name={"UserInfo"} options={{headerShown: true, headerTransparent: true, headerTitle: ''}} component={UserScreen} />
+            <RootStack.Screen name={"UserInfo"}
+                options={{headerShown: true, headerTransparent: true, headerTitle: ''}} 
+                component={UserScreen}
+                />
             <RootStack.Screen name={"PostDetails"} component={PostDetails}
             options={{headerTintColor: theme.colors.primary,
             headerTitleStyle: {color: '#000'},
@@ -30,6 +35,7 @@ const RootNavigator = () => {
                     headerTitle: "What's happening?"
                     }} 
                 component={CreatePost} />
+            <RootStack.Screen name="UsersDisplay" component={UserListScreen} /> 
         </RootStack.Navigator>
         
     )

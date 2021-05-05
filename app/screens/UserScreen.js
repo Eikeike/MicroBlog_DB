@@ -5,35 +5,37 @@ import { Avatar, Button } from 'react-native-paper'
 import UserInfoCard from '../components/UserInfoCard'
 import FeedList from '../components/FeedList'
 import { theme } from '../core/theme'
-import {user} from '../dataHelpers/user'
 import {feed} from '../dataHelpers/feed'
 import {comments} from '../dataHelpers/comments'
 import { TabBarIndicator } from 'react-native-tab-view'
-import UserTabNav from '../components/userTabNav'
+import UserTabNav from '../components/UserTabNav'
 import AuthContext from '../context/AuthContext'
+import callApi from '../core/callApi'
 
 
 const UserScreen = ({route, navigation}) => {
-    
-    const userContext = React.useContext(AuthContext);
+
+    const {userName} = React.useContext(AuthContext);
 
     const [currUser, setCurrUser] = React.useState();
     const [userPosts, setUserPosts] = React.useState([]);
     const [userLikes, setUserLikes] = React.useState([]);
     const [userComments, setUserComments] = React.useState([]);
-
     React.useEffect(
-        () => {
-            setCurrUser(user);
-            if(!route.params)
+        async function getUser(){ () => 
             {
-                console.log(userContext.userName);
+                const userToGet = route.params?.userName ?? userName;
+                const response = await callApi(`/user/getInfo/${userToGet}`);
+                const user = response.user;
+                console.log(user);
+                setCurrUser(user);
+                setUserPosts(feed);
+                setUserLikes(feed);
+                setUserComments(comments);
+                //normally fetch from route.params.userName here
             }
-            setUserPosts(feed);
-            setUserLikes(feed);
-            setUserComments(comments);
-            //normally fetch from route.params.userName here
-        },[currUser]
+            getUser();
+        },[route]
     );
 
 
@@ -54,9 +56,10 @@ export default UserScreen
 
 const styles = StyleSheet.create({
     userInfo: {
-        flex: 0.35
+        paddingBottom: 10,
+        backgroundColor: theme.colors.background
     },
     tabNav: {
-        flex: 0.75
+        flex: 1
     }
 })

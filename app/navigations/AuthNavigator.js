@@ -6,7 +6,9 @@ import LoginScreen from '../screens/LoginScreen'
 import SignUpScreen from '../screens/SignUpScreen'
 import AuthContext from '../context/AuthContext'
 import { theme } from '../core/theme'
+import callApi from '../core/callApi'
 import RootNavigator from './RootNavigator';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AuthNavigator = () => {
 
@@ -35,6 +37,7 @@ const AuthNavigator = () => {
             }
         },
         {
+            //defaults
             isLoading: true,
             isSignOut: false,
             userToken: null
@@ -46,43 +49,65 @@ const AuthNavigator = () => {
         () => {
             let tokenReceived = null;
             const getToken = async () => {
-                //Get token from async storage. Not implemented yet. But we can pretend :)
-                try{
-                    tokenReceived = 'jwt-mock';
+                try
+                {
+                    //tokenReceived = await AsyncStorage.getItem('token');
+                    tokenReceived = null;
                 }
                 catch(e){
-                    console.log(e);
-                }
+                    console.log("Cannot access Async storage");
+                    tokenReceived = null;
+                };
                 //Re-sign in
                 dispatch({type: 'SIGN_IN_RELOAD', token: tokenReceived});
             };
             getToken();
-        }, []
-    )
+        }, [] ) //this means only use on mount, not on rerender
 
     //Provides functionality for the authContext. Components within the AuthContext can call either of these functions.
     //Calling one of these functions triggers a dispatch, meaning the reducer is called. That causes a re-render of the main component, which then again checks 
     //If the token is still valid. Depending on that, the correct screen is shown.
     const authContext = React.useMemo(
-        () => ({
-            signIn: async userData => {
-                //Do something with the userData (signing in, of course)
-                console.log("Sign in called")
-                dispatch({type: 'SIGN_IN', token: 'dummy token'});
-            },
-            signUp: async userData => {
-                //Do something with the userData (signing in, of course)
+        () => {let userFuncs = 
+            {
+                signIn: async userData => {
+                    //Do something with the userData (signing in, of course)
+                    console.log("Sign in called");
+                    const response = await callApi('/auth/login', userData);
+                    if(!response.success) //notice the NOT
+                    {
+                        return response; //go back inside login Screen and display error message
+                    }
+                    else
+                    {
+                        const token = response.token;
+                        try
+                        {
+                            await AsyncStorage.setItem('token', token);
+                        }
+                        catch(e)
+                        {
+                            console.log("Cannot save to local storage");
+                        }
+                        userFuncs.userName = userData.userName;
+                        dispatch({type: 'SIGN_IN', token: token});
+                        return null;
+                    }
+                },
+                signUp: async userData => {
+                    //Do something with the userData (signing up, of course)
+                    const response = await callApi('/auth/signup', userData);
+                    return response;
+                },
+                signOut: async () => {
+                    //Do something with the userData (signing out, of course)
 
-                dispatch({type: 'SIGN_IN', token: 'dummy token'});
-            },
-            signOut: async () => {
-                //Do something with the userData (signing in, of course)
-
-                dispatch({type: 'SIGN_OUT'});
-            },
-            userName: 'eikewobken'
-        }),
-        []
+                    dispatch({type: 'SIGN_OUT'});
+                },
+                userName: ''
+            }
+        return userFuncs
+        }, []
     )
     const AuthStack = createStackNavigator();
     return (

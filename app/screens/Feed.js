@@ -10,7 +10,7 @@ import { Appbar, Divider } from 'react-native-paper';
 
 const FeedStack = createStackNavigator();
 
-const FeedListWithIcon = ({route, navigation}) => {
+const FeedListWithIcon = ({navigation}) => {
     return(
     <>
     <FeedList feed={feed}/>
@@ -23,26 +23,24 @@ const FeedListWithIcon = ({route, navigation}) => {
     )
 }
 
-const FeedStackScreen = () => {
+const FeedStackScreen = ({route, navigation}) => {
     return(
         <>
         <Appbar.Header style={styles.appBar}>
             <Appbar.Content title={<MaterialCommunityIcons name="email" color={theme.colors.primary} size={35}/>} titleStyle={{alignSelf: 'center'}}/>
         </Appbar.Header>
+
         <Divider/>
-        <FeedList feed={feed}/>
-        <TouchableOpacity style={styles.addPostButton} onPress={() => {
-            navigation.navigate("CreatePost");
-        }}>
-                <MaterialCommunityIcons name="pencil-plus" color={'#fff'} size={35} />
-        </TouchableOpacity>
+
+        <FeedListWithIcon navigation={navigation} />
         </>
     )
 }
 
 const styles = StyleSheet.create({
     appBar: {
-        backgroundColor: theme.colors.background
+        backgroundColor: theme.colors.background,
+        marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     },
     addPostButton: {
         height: 60,

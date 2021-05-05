@@ -1,15 +1,33 @@
+import { useNavigation } from '@react-navigation/core'
 import React from 'react'
 import { StyleSheet, Text, View, Dimensions } from 'react-native'
+import { TouchableOpacity } from 'react-native-gesture-handler'
 import { Avatar, Button } from 'react-native-paper'
 import { theme } from '../core/theme'
 
+const getFollowing = (user, navigation) => {
+    let following = user.following;
+    navigation.navigate("UsersDisplay", {title: "Following", users: following});
+}
+
+const getFollowers = (user, navigation) => {
+    let followers = user.followers;
+    navigation.navigate("UsersDisplay", {title: "Followers", users: followers});
+}
 
 const UserInfoCard = (props) => {
 
-    const user = props.user
+    const [user, setUser] = React.useState({});
+    React.useLayoutEffect(
+        () => {
+            setUser(props.user);
+        }
+    );
+
+    const navigation = useNavigation();
 
     return (
-            <View style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.headerImg}/>
                 <View style={styles.topRowContainer}>
                     <View style={styles.pictureContainer}>
@@ -29,10 +47,14 @@ const UserInfoCard = (props) => {
                     <Text style={styles.bioText}>{user.bioText}</Text>
                 </View>
                 <View style={styles.followers}>
-                    <Text style={{fontSize: 13, paddingRight: 5}}>Following:</Text>
-                    <Text style={{fontSize: 13, paddingRight: 10, fontWeight: 'bold'}}>{user.followingCount}</Text>
-                    <Text style={{fontSize: 13, paddingRight: 5}}>Followers:</Text>
-                    <Text style={{fontSize: 13, fontWeight: 'bold'}}>{user.followersCount}</Text>
+                    <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => {getFollowing(user,navigation)}}>
+                        <Text style={{fontSize: 13, paddingRight: 5}}>Following:</Text>
+                        <Text style={{fontSize: 13, paddingRight: 10, fontWeight: 'bold'}}>{user.followingCount}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{flexDirection: 'row'}} onPress={() => {getFollowers(user, navigation)}}>
+                        <Text style={{fontSize: 13, paddingRight: 5}}>Followers:</Text>
+                        <Text style={{fontSize: 13, fontWeight: 'bold'}}>{user.followersCount}</Text>
+                    </TouchableOpacity>
                 </View>
         </View>
     )
@@ -43,7 +65,7 @@ export default UserInfoCard
 const styles = StyleSheet.create({
     container:{
         flexDirection: 'column',
-        flex: 1,
+        alignItems: 'flex-start',
         backgroundColor: theme.colors.background,
         paddingHorizontal: 10,
 
@@ -60,23 +82,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         marginTop: 84,
+        width: '100%'
     },
     pictureContainer:{
         flex: 0.3,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         height: 72,
         width: 72,
     },
     buttonContainer:{
-        flex: 1,
-        alignItems: 'flex-end'
+        flex: 0.7,
+        alignItems: 'flex-end',
+        justifyContent: 'flex-end'
     },
     followButton: {
         marginTop: 40,
         borderRadius: 37
     },
     userPicture: {
-        flex: 1,
         backgroundColor: '#fff',
         borderWidth: 1,
         borderColor:'#000',
