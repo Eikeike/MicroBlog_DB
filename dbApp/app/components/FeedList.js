@@ -26,10 +26,10 @@ const navigation = useNavigation();
             
         };
     //feed list and absolute positioning of pencil-plus
-    const feed = Object.values(props.feed);
+    const feed = props.feed ? Object.values(props.feed) : [];
 
     const EmptyFeed = () => {
-        return (<View><Text>Nothing to show.</Text></View>)
+        return (<View style={{flex: 1, alignItems: 'center', justifyContent: 'center', marginTop: 80}}><Text style={{fontSize: 18}}>Nothing to show.</Text></View>)
     }
 
     return(

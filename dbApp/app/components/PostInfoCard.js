@@ -6,36 +6,24 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Post from '../components/Post'
 import { TouchableOpacity } from 'react-native-gesture-handler'
 import { user } from '../dataHelpers/user'
+import {toggleComment, useLike, useRepost} from '../hooks/interactions';
+import { useNavigation } from '@react-navigation/core';
+import callApi from '../hooks/callApi';
 
 const PostInfoCard = (props) =>
 {
-    console.log(props.post.author);
     const {_id, author, likeCount, repostCount, comments, isLiked, isReposted, postText, originalPost} = props.post;
-    const [answer, setAnswer] = React.useState('');
-    const [liked, setLiked] = React.useState(isLiked);
-    const [reposted, setReposted] = React.useState(isReposted);
 
-    const toggleComment = () => {
-        console.log(answer);
-        //logic yet to come
-    }
+    const [liked, displayedLikes, like] = useLike(likeCount, isLiked);
+    const [reposted, displayedReposts, repost] = useRepost(repostCount, isReposted);
 
-    const toggleLike = () => {
-        setLiked(!liked);
-        //logic yet to come
-    }
+    const navigation = useNavigation();
 
-    const toggleRepost = () => {
-        setReposted(!reposted);
-        //logic yet to come
-    }
-
-    const getLikes = () => {
-        let likedBy = likedBy;
-        likedBy.push(user);
+    const getLikes = async () => {
+        const {likedBy} = await callApi(`/posts/getLikes/${_id}`);
         navigation.navigate("UsersDisplay", {title: "Liked by", users: likedBy});
     }
-    console.log(props.post);
+    
     //This is shown on top of the list with the comments
         return(
             <>
@@ -46,7 +34,7 @@ const PostInfoCard = (props) =>
             </>
             )}
             <View style={styles.ownPost}>
-            {originalPost && (<Text style={styles.reply}>{`reply to @${originalPost.author.userName}`}</Text>)}
+            {originalPost && (<Text style={styles.reply}>{`reply to @${originalPost.author?.userName}`}</Text>)}
             <View style={styles.userInfo}>
                 <View style={styles.avatarContainer}>
                     <TouchableOpacity
@@ -69,10 +57,10 @@ const PostInfoCard = (props) =>
             <Divider/>
 
             <View style={styles.likesContainer}>
-                <Text style={styles.number}>{repostCount.toString()}</Text>
+                <Text style={styles.number}>{displayedReposts.toString()}</Text>
                 <Text style={{fontWeight: '200'}}>Reposts</Text>
                 <TouchableOpacity onPress={getLikes} style={{flexDirection: 'row'}}>
-                    <Text style={[styles.number, {paddingLeft: 10}]}>{likeCount.toString()}</Text>
+                    <Text style={[styles.number, {paddingLeft: 10}]}>{displayedLikes.toString()}</Text>
                     <Text style={{fontWeight: '200'}}>Likes</Text>
                 </TouchableOpacity>
             </View>
@@ -80,13 +68,13 @@ const PostInfoCard = (props) =>
             <Divider/>
             <View style={styles.bottomRow}>
 
-                <TouchableOpacity onPress={toggleComment}>
+                <TouchableOpacity onPress={() => toggleComment(props.post, navigation)}>
                     <MaterialCommunityIcons name={"comment"} size={20} color={theme.colors.secondary}/>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={toggleRepost}>
+                <TouchableOpacity onPress={() => repost(_id)}>
                     <MaterialCommunityIcons name={"repeat"} size={20} color={reposted ? theme.colors.repost : theme.colors.secondary}/>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={toggleLike}>
+                <TouchableOpacity onPress={() => like(_id)}>
                     <MaterialCommunityIcons name={"heart-outline"} size={20} color={liked ? theme.colors.like : theme.colors.secondary}/>
                 </TouchableOpacity>
             </View>

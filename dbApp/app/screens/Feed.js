@@ -12,11 +12,11 @@ const FeedStack = createStackNavigator();
 
 
 
-const FeedListWithIcon = ({feed, success, navigation}) => {
+const FeedListWithIcon = ({feed, loaded, navigation}) => {
     return(
     <>
     {
-       success ? (<FeedList feed={feed}/>) : (<ActivityIndicator/>)
+       loaded ? (<FeedList feed={feed}/>) : (<ActivityIndicator/>)
     } 
         <TouchableOpacity style={styles.addPostButton} onPress={() => {
             navigation.navigate("CreatePost");
@@ -30,13 +30,16 @@ const FeedListWithIcon = ({feed, success, navigation}) => {
 const FeedStackScreen = ({route, navigation}) => {
 
     const [feed, setFeed] = React.useState([]);
-    const [success, setSuccess] = React.useState(false);
+    const [loaded, setLoaded] = React.useState(false);
 
     React.useEffect( () => {
         const fetchApi = async () => {
             const response = await callApi('/posts/feed');
-            setFeed(response.feed);
-            setSuccess(response.success);
+            if(response)
+            {
+                setFeed(response.feed);
+            }
+            setLoaded(true);
         };
         const unsubscribe = navigation.addListener('focus', () => {
             fetchApi();
@@ -52,7 +55,7 @@ const FeedStackScreen = ({route, navigation}) => {
 
         <Divider/>
 
-        <FeedListWithIcon navigation={navigation} feed={feed} success={success}/>
+        <FeedListWithIcon navigation={navigation} feed={feed} loaded={loaded}/>
         </>
     )
 }

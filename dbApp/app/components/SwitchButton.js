@@ -4,7 +4,7 @@ import { theme } from '../core/theme'
 import { Button } from 'react-native-paper'
 
 const SwitchButton = ({switchVar, ...props}) => {
-    console.log(switchVar, props);
+    
     return (
         <Button style={{...styles.followButton, backgroundColor: switchVar ? theme.colors.primary : theme.colors.background}} mode={switchVar ? 'contained': 'outlined'}
                         labelStyle={{color: switchVar ? theme.colors.background : theme.colors.primary, fontSize: 14}}

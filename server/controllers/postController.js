@@ -44,7 +44,6 @@ exports.feed = ash(
         const feed = await Post
         .find()
         .populate({path: 'author', select: 'name userName avatarURL'})
-        //.populate({path: 'comments', populate: {path: 'author', select: 'name userName avatarURL'}, sort: {sort: { 'createdAt': -1 }}})
         .populate({path: 'originalPost', populate: {path: 'author', select: 'name userName avatarURL'}})
         .sort({'createdAt': -1})
         .where("_id")
@@ -99,6 +98,9 @@ exports.toggleRepost = ash(
         }
         else{
             post.repostedBy.push(req.requestingUser._id);
+            repost.repostedBy.push(req.requestingUser._id);
+            post.repostCount += 1;
+            repost.repostCount += 1;
 
             if (!repost.postType.includes("repost"))
             {
@@ -106,10 +108,11 @@ exports.toggleRepost = ash(
             };
             repost._id = mongoose.Types.ObjectId();
             repost.isNew = true;
-            post.repostCount += 1;
+            repost.repostingUser = req.requestingUser.name;
+            repost.createdAt = Date.now();
 
             await post.save();
-            await repost.save({timestamps: false});
+            await repost.save();
 
             await User.findByIdAndUpdate(req.requestingUser.id, 
                 {
@@ -125,8 +128,13 @@ exports.getComments = ash(
     async (req, res, next) => {
         const commentIds = req.body.comments;
         //user gives us an array of comment ids, we fill them. Simple as that
-        const getPost = async (c) => {
-            return await Post.findById(c).populate({path: 'author', select: 'name userName avatarURL'}).sort({ 'createdAt': -1 }).exec();
+        const getPost = async (id) => {
+            return await Post.findById(id)
+            .populate({path: 'author', select: 'name userName avatarURL'})
+            .populate({path: 'originalPost', populate: {path: 'author', select: 'name userName avatarURL'}})
+            .sort({ 'createdAt': -1 })
+            .lean()
+            .exec();
         }
         let comments = await Promise.all(commentIds.map(c => {return getPost(c)}));
 
@@ -137,5 +145,37 @@ exports.getComments = ash(
     console.log(comments);
     res.status(201).json({success: true, comments: comments})
 
+    }
+)
+
+exports.getLikes = ash(
+    async (req, res, next) => {
+        const post = await Post.findById(req.params.id, 'likedBy')
+        .populate({path: 'likedBy'})
+        .lean();
+
+        if(!post || !post.likedBy)
+        {
+            return next({statusCode: 404, message: 'Post not found'});
+        }
+        res.status(201).json({success: true, likedBy: post.likedBy})
+
+    }
+)
+
+exports.searchPost = ash(
+    async (req, res, next) => {
+        let posts = await Post
+        .find(
+                {postText: new RegExp('.*' + req.body.query + '.*', 'i')}
+        )
+        .populate({path: 'author', select: 'name userName avatarURL'})
+        .populate({path: 'originalPost', populate: {path: 'author', select: 'name userName avatarURL'}})
+        .sort({'createdAt': -1})
+        .limit(150)
+        .lean()
+        .exec();
+
+        res.status(201).json({success: true, posts});
     }
 )

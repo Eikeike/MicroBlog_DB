@@ -50,3 +50,7 @@ exports.login = ash(
         res.status(201).json({success: true, token: token});
     }
 )
+
+exports.check = (req, res, next) => {
+    res.status(201).json({success: true}) //validate
+    }

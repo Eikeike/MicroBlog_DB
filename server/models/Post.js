@@ -13,7 +13,8 @@ var PostSchema = new mongoose.Schema({
   repostedBy:   [{ type: mongoose.Schema.ObjectId, ref: "User" }],
   comments:     [{ type: mongoose.Schema.ObjectId, ref: "Comment" }],
   postText:     { type: String, required: true },
-  postType:     [{ type: String, default: "post" }] //can be post, comment or repost,
+  postType:     [{ type: String, default: "post" }],//can be post, comment or repost,
+  repostingUser: {type: String, default: ''}//One post can be reposted by one user. Just save the name. To display. You know
   //comment and repost or post and repost
 }, {timestamps : true, discriminatorKey: 'kind'});
 

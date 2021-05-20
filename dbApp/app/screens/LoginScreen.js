@@ -4,7 +4,7 @@ import CustomButton from '../components/Button'
 import SignUpScreen from './SignUpScreen'
 import TextInput from '../components/TextInput'
 import {theme} from '../core/theme'
-import AuthContext from '../context/AuthContext'
+import {AuthContext} from '../context/AuthContext'
 import {HelperText} from 'react-native-paper'
 import { cos } from 'react-native-reanimated'
 
@@ -45,7 +45,7 @@ const LoginScreen = ({navigation}) => {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.container}>
+        <KeyboardAvoidingView style={styles.container} behavior='padding' keyboardVerticalOffset={100} >
             <View style={{width: '80%'}}>
                 <TextInput 
                 label="Username"
@@ -74,7 +74,7 @@ const LoginScreen = ({navigation}) => {
                     <Text>
                         Not logged in yet?
                     </Text>
-                    <TouchableOpacity onPress={() => navigation.replace('SignUp')}>
+                    <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
                         <Text style={styles.signUp}>Sign in</Text>
                     </TouchableOpacity>
                 </View>

@@ -9,6 +9,7 @@ import callApi from '../hooks/callApi'
 const CreatePost = ({route, navigation}) => {
 
     const [text, setText] = useState('');
+    const [posted, setPosted] = useState(false);
 
     //Set the button into the header bar
     React.useLayoutEffect(() => {
@@ -45,7 +46,8 @@ const CreatePost = ({route, navigation}) => {
           body.originalPost = null;
         }
         await callApi('/posts/create', body);
-        
+        setPosted(true);
+
         if(Platform.OS != 'web')
         {
         Alert.alert(
@@ -65,34 +67,46 @@ const CreatePost = ({route, navigation}) => {
     }
   }
 
+  const checkDelete = (e) => {
+    e.preventDefault();
+    
+            // Prompt the user before leaving the screen
+            if(!posted)
+            {
+              Alert.alert(
+                'Delete post?',
+                'You have unsaved changes. Your post will be gone forever. Are you sure?',
+                [
+                  { text: "Don't leave", style: 'cancel', onPress: () => {} },
+                  {
+                    text: 'Delete post',
+                    style: 'destructive',
+                    // If the user confirmed, then we dispatch the action we blocked earlier
+                    // This will continue the action that had triggered the removal of the screen
+                    onPress: () => navigation.dispatch(e.data.action),
+                  },
+                ]
+              );
+            }
+            else
+            {
+              navigation.dispatch(e.data.action)
+            }
+  }
+
     React.useEffect(
-        () =>{
+        () =>
+        {
           if(Platform.OS === 'web')
           {
             return;
           }
-          navigation.addListener('beforeRemove', (e) => {   
+          const unsubscribe = navigation.addListener('beforeRemove', (e) => {   
             // Prevent default behavior of leaving the screen
-            e.preventDefault();
-    
-            // Prompt the user before leaving the screen
-            //=============TODO: add fixed strings from a file==================
-            Alert.alert(
-              'Delete post?',
-              'You have unsaved changes. Your post will be gone forever. Are you sure?',
-              [
-                { text: "Don't leave", style: 'cancel', onPress: () => {} },
-                {
-                  text: 'Delete post',
-                  style: 'destructive',
-                  // If the user confirmed, then we dispatch the action we blocked earlier
-                  // This will continue the action that had triggered the removal of the screen
-                  onPress: () => navigation.dispatch(e.data.action),
-                },
-              ]
-            );
-          }), [navigation]
-        }
+            checkDelete(e);
+          })
+          return unsubscribe;
+        }, [navigation, posted]
     );
 
       //You can pass an original Post as a prop that will be displayed above the text input

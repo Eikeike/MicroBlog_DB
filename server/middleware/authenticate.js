@@ -11,18 +11,22 @@ exports.authenticate = ash(
     }
     var token = req.headers.authorization.split(' ')[1];
     //Authorization looks like this: "Bearer: <someToken>". Split at ' ' to get <someToken>, in this case JWT
-  
+
     var payload = null;
     try {
       payload = jwt.verify(token, config.TOKEN_SECRET);
     }
     catch (err) {
+      if (err.message.includes('expired'))
+      {
+        return next({statusCode: 401, message: "Your login session has expired"});
+      }
       return next({statusCode: 401, message: "You need to be logged in to access this route"});
     }
-  
-    if (payload.exp <= moment().unix()) {
-      return next({statusCode: 401, message: "Your login session has expired"});
-    }
+
+    // if (payload.exp <= moment().unix()) {
+
+    // }
     const user = await User.findById(payload.id).select('-password').exec();
     if(!user)
     {
@@ -36,7 +40,7 @@ exports.authenticate = ash(
       next();
     }
     //payload.id contains the userName
-    
+
     //req.requestingUser now contains the user that is making a request
 
   });

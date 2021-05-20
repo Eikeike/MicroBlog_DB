@@ -22,7 +22,7 @@ const PostDetails = ({route, navigation}) => {
     const [comments, setComments] = React.useState([]);
 
     const toggleComment = () => {
-        console.log(answer);
+        
         //logic yet to come
     }
 
@@ -46,7 +46,7 @@ const PostDetails = ({route, navigation}) => {
     React.useEffect( () => {
         async function getComments(){ 
                  const response = await callApi(`/posts/getComments`, {comments: route.params.postClicked.comments });
-                 console.log(response.comments);
+                 
                  setComments(response.comments);
              }
              const unsubscribe = navigation.addListener('focus', () => {

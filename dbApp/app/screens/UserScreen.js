@@ -8,28 +8,39 @@ import { theme } from '../core/theme'
 import {comments} from '../dataHelpers/comments'
 import { TabBarIndicator } from 'react-native-tab-view'
 import UserTabNav from '../components/UserTabNav'
-import AuthContext from '../context/AuthContext'
+import {AuthContext} from '../context/AuthContext'
 import callApi from '../hooks/callApi'
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem} from '@react-navigation/drawer';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const Drawer = createDrawerNavigator();
+
+const CustomDrawerComponent = (props) => {
+    const {signOut} = React.useContext(AuthContext)
+    //creates a custom draweritemlist with all the components that are in the original list (passed with ...props) and adds drawerItem
+    return(
+        <DrawerContentScrollView{...props}>
+            <DrawerItemList {...props} />
+            <DrawerItem label="Log out" onPress={() => signOut()} />
+        </DrawerContentScrollView>
+    )
+}
 
 const UserScreen = ({route, navigation}) => {
 
     const {userName, signIn} = React.useContext(AuthContext);
 
     const [currUser, setCurrUser] = React.useState();
-    const [userPosts, setUserPosts] = React.useState([]);
-    const [userLikes, setUserLikes] = React.useState([]);
-    const [userComments, setUserComments] = React.useState([]);
+
     React.useEffect( () => {
        async function getUser(){ 
                 const userToGet = route.params?.userName ?? userName;
                 const response = await callApi(`/user/getInfo/${userToGet}`);
-                const user = response.user;
-                const feed = response.user.posts;
-                setCurrUser(user);
-                setUserPosts(feed);
-                setUserLikes(feed);
-                setUserComments(comments);
+                if(response)
+                {
+                    const user = response.user;
+                    setCurrUser(user);
+                }
             }
             const unsubscribe = navigation.addListener('focus', () => {
                 getUser();
@@ -39,17 +50,28 @@ const UserScreen = ({route, navigation}) => {
         },[navigation]
     );
 
-
     return (
         !currUser ? <ActivityIndicator/> : 
-        <>
-        <View style={styles.userInfo}>
-            <UserInfoCard user={currUser}/>
-        </View>
-        <View style={styles.tabNav}>
-            <UserTabNav posts={userPosts} likes={userLikes} comments={userComments}/>
-        </View>
-        </>
+        <Drawer.Navigator drawerPosition='right' drawerType='front' drawerContent={props => <CustomDrawerComponent {...props}/>}>
+            <Drawer.Screen name="UserDrawer"
+            options={{
+                drawerLabel: () => null,
+                title: null,
+                drawerIcon: () => null
+            }}>
+                {(props) => (
+                    <>
+                    <View style={styles.userInfo}>
+                        <UserInfoCard user={currUser}/>
+                    </View>
+                    <View style={styles.tabNav}>
+                        <UserTabNav user={currUser}/>
+                    </View>
+                    <MaterialCommunityIcons  style={styles.burgerMenu} name={"menu"} size={35} color={theme.colors.secondary}
+                    onPress={() => {props.navigation.toggleDrawer()}}/>
+                </>)}
+                </Drawer.Screen>
+        </Drawer.Navigator>
     )
 }
 
@@ -62,5 +84,12 @@ const styles = StyleSheet.create({
     },
     tabNav: {
         flex: 1
+    },
+    burgerMenu: {
+        position:'absolute',
+        zIndex: 100,
+        top: 40,
+        right: 20,
+        bottom: 0
     }
 })

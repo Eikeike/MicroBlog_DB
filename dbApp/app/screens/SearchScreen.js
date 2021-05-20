@@ -13,14 +13,14 @@ const UserPostTab = createMaterialTopTabNavigator();
 
 const TabNavigator = (props) => {
     const userList = props.userList || [];
-    const feedList = feed
+    const postList = props.postList || [];
     return(
         <UserPostTab.Navigator>
             <UserPostTab.Screen name="UserResults">
                 {() => (<UsersList users={userList}/>)}
             </UserPostTab.Screen>
             <UserPostTab.Screen name="PostResults">
-            {() => (<FeedList feed={feedList}/>)}
+            {() => (<FeedList feed={postList}/>)}
             </UserPostTab.Screen>
         </UserPostTab.Navigator>
     )
@@ -37,13 +37,15 @@ const InputInHeader = (props) => {
 }
 
 const SearchScreen = ({route, navigation}) => {
+    const [userList, setUserList] = React.useState([]);
+    const [postList, setPostList] = React.useState([]);
     
     const search = async(query) => {
-        const response = await callApi(`/user/search/${query}`);
-        setUserList(response.users);
+            Promise.all([
+                callApi(`/user/search/${query}`).then(res => {setUserList(res.users)}),
+                callApi('/posts/search', {query}).then(res => {setPostList(res.posts)})
+            ]);
     }   
-
-    const [userList, setUserList] = React.useState([]);
 
     return (
         <>
@@ -52,7 +54,7 @@ const SearchScreen = ({route, navigation}) => {
                 <InputInHeader searchFnc={search}/>
             </Appbar.Header>
             <Divider/>
-            <TabNavigator userList={userList}/>
+            <TabNavigator userList={userList} postList={postList}/>
         </View>
         </>
     )

@@ -5,53 +5,84 @@ import { theme } from '../core/theme'
 import {user} from '../dataHelpers/user'
 import {feed} from '../dataHelpers/feed'
 import {comments} from '../dataHelpers/comments'
+import {AuthContext} from '../context/AuthContext'
+import callApi from '../hooks/callApi'
+import { useNavigation } from '@react-navigation/core'
 
-const ValueContext = React.createContext();
-
-const Posts = () => {
+const Posts = (props) => {
     
-    const props = React.useContext(ValueContext);
-
     return React.useMemo(
         () => {
-        return (<FeedList feed={props.posts}/>)
-        }, [props]
+        return (<FeedList feed={props.user.posts}/>)
+        }, [props.user]
         )
 }
 
-const Comments = () => {
+const Comments = (props) => {
 
-    const props = React.useContext(ValueContext);
+    const navigation = useNavigation();
+    const [comments, setComments] = React.useState([]);
+    React.useEffect(
+        () => {
+            const getComments = async () => {
+                const response = await callApi(`/user/getUserComments/${props.user.userName}`);
+                setComments(response.comments);
+
+            };
+            const unsubscribe = navigation.addListener('focus', () => {
+                getComments();
+              });
+              return unsubscribe;
+        }, [navigation]
+    )
 
     return React.useMemo(
         () => {
-            return (<FeedList feed={props.comments}/>)
-        }, [props]
+            return (<FeedList feed={comments}/>)
+        }, [comments]
         )
     }
 
-const Likes = () => {
+const Likes = (props) => {
 
-    const props = React.useContext(ValueContext);
+    const [likes, setLikes] = React.useState([]);
+    const navigation = useNavigation();
+    React.useEffect(
+        () => {
+            const getLikes = async () => {
+                const response = await callApi(`/user/getUserLikes/${props.user._id}`);
+                setLikes(response.likes);
+
+            };
+            const unsubscribe = navigation.addListener('focus', () => {
+                getLikes();
+              });
+              return unsubscribe;
+        }, [navigation]
+    )
 
     return React.useMemo(
         () => {
-            return (<FeedList feed={props.likes}/>)
-        }, [props]
+            return (<FeedList feed={likes}/>)
+        }, [likes]
         )
-}
+    }
 
 const UserTabNav = (props) => {
         const TabNav = createMaterialTopTabNavigator();
 
         return(
-            <ValueContext.Provider value={props}>
-                <TabNav.Navigator>
-                    <TabNav.Screen name="Posts" component={Posts} />
-                    <TabNav.Screen name="Comments" component={Comments}/>
-                    <TabNav.Screen name="Liked" component={Likes}/>
-                </TabNav.Navigator>
-            </ValueContext.Provider>
+            <TabNav.Navigator>
+                <TabNav.Screen name="Posts">
+                    {() => {return <Posts user={props.user}/>}}
+                    </TabNav.Screen>
+                <TabNav.Screen name="Comments">
+                {() => {return <Comments user={props.user}/>}}
+                    </TabNav.Screen>
+                <TabNav.Screen name="Liked">
+                {() => {return <Likes user={props.user}/>}}
+                    </TabNav.Screen>
+            </TabNav.Navigator>
         )
 }
 

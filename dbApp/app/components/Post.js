@@ -4,46 +4,22 @@ import { StyleSheet, Text, View, TouchableOpacity} from 'react-native'
 import { Avatar } from 'react-native-paper'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { theme } from '../core/theme';
-import callApi from '../hooks/callApi'
+import callApi from '../hooks/callApi';
+import {toggleComment, useLike, useRepost} from '../hooks/interactions';
 
 const Post = (props) => {
-    const {_id, author, likeCount, repostCount, comments, isLiked, isReposted, postText, originalPost} = props.post;
-    let {postType}  = props.post;
-    const [displayedLikes, setLikes] = React.useState(likeCount);
-    const [liked, setLiked] = React.useState(isLiked);
-    const [displayedReposts, setReposts] = React.useState(repostCount);
-    const [reposted, setReposted] = React.useState(isReposted);
+    const {_id, author, likeCount, repostCount, comments, isLiked, isReposted, postText, originalPost, repostingUser} = props.post;
+    let {postType}  = props.post; //so i can change it later. Don't want it to be const for legacy reasons
+
+    const [liked, displayedLikes, like] = useLike(likeCount, isLiked);
+    const [reposted, displayedReposts, repost] = useRepost(repostCount, isReposted);
 
     const navigation = useNavigation();
+
     //For legacy reasons. Some older posts contain the "type" property instead of the postType property
     if(!postType)
     {
         postType = ["post"];
-    }
-
-    const toggleLike = async () => {
-        if(liked){
-            setLikes(displayedLikes - 1);
-        }else{
-            setLikes(displayedLikes + 1);
-        }
-        await callApi(`/posts/toggleLike/${_id}`)
-        setLiked(!liked);
-    }
-
-    const toggleRepost = async () => {
-        if(reposted){
-            return;
-        }else{
-            setReposts(displayedReposts + 1);
-            await callApi(`/posts/toggleRepost/${_id}`);
-            setReposted(true);
-        }
-    }
-
-    const toggleComment = () => {
-        //open new Screen tweet. Coming soon, i promise
-        console.log("You are trying to write a comment")
     }
 
     return (
@@ -55,7 +31,7 @@ const Post = (props) => {
                 </TouchableOpacity>
                 <View style={styles.rightFromAvatar}>
                     <View style={styles.userAndPost}>
-                        {postType.includes("repost") && (<Text style={styles.topRowText}>Repost by xxx</Text>)}
+                        {postType.includes("repost") && (<Text style={styles.topRowText}>{`${repostingUser || ''} reposted: `}</Text>)}
                         <TouchableOpacity style={styles.userNameContainer} onPress={
                             () => {
                                 navigation.navigate("UserInfo", {userName: author.userName})}
@@ -63,19 +39,19 @@ const Post = (props) => {
                             <Text style={styles.name} numberOfLines={1}>{author.name}</Text>
                             <Text style={styles.userName}>{`@${author.userName}`}</Text>
                         </TouchableOpacity>
-                        {postType.includes("comment") && (<Text style={styles.topRowText}>Answer to ydfxx</Text>)}
+                        {postType.includes("comment") && (<Text style={styles.topRowText}>{`Answer to ${originalPost?.author?.name}`}</Text>)}
                         <Text style={styles.text}>{postText}</Text>
                     </View>
                         <View style={styles.bottomRow}>
-                            <TouchableOpacity style={styles.iconWithText} onPress={toggleComment}>
+                            <TouchableOpacity style={styles.iconWithText} onPress={() => toggleComment(props.post, navigation)}>
                                 <MaterialCommunityIcons name={"comment"} size={20} color={theme.colors.secondary}/>
                                 <Text style={styles.number}>{comments.length}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconWithText} onPress={toggleRepost}>
+                            <TouchableOpacity style={styles.iconWithText} onPress={() => repost(_id)}>
                                 <MaterialCommunityIcons name={"repeat"} size={20} color={reposted ? theme.colors.repost : theme.colors.secondary}/>
                                 <Text style={styles.number}>{displayedReposts}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={styles.iconWithText} onPress={toggleLike}>
+                            <TouchableOpacity style={styles.iconWithText} onPress={() => like(_id)}>
                                 <MaterialCommunityIcons name={"heart-outline"} size={20} color={liked ? theme.colors.like : theme.colors.secondary}/>
                                 <Text style={styles.number}>{displayedLikes}</Text>
                             </TouchableOpacity>

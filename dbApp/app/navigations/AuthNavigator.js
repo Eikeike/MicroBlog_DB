@@ -4,9 +4,9 @@ import React from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import LoginScreen from '../screens/LoginScreen'
 import SignUpScreen from '../screens/SignUpScreen'
-import AuthContext from '../context/AuthContext'
+import {AuthContext, createFunctions} from '../context/AuthContext'
 import { theme } from '../core/theme'
-import callApi from '../hooks/callApi'
+import {API_URI} from '../core/config'
 import RootNavigator from './RootNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import jwt_decode from 'jwt-decode'
@@ -49,71 +49,55 @@ const AuthNavigator = () => {
     
     //Used to fetch the user data on startup/re-rendering, so that a user does not hve to log in every time
     React.useEffect(
-        () => {
-            let tokenReceived, decodedToken = null;
-            const getToken = async () => {
-                try
-                {
-                    tokenReceived = await AsyncStorage.getItem('token');
-                    decodedToken = jwt_decode(tokenReceived);
-                    //tokenReceived = null;
-                }
-                catch(e){
-                    console.log("Cannot access Async storage");
-                    tokenReceived = null;
-                };
-                //Re-sign in
-                dispatch({type: 'SIGN_IN_RELOAD', token: tokenReceived, userName: decodedToken?.userName || ''});
-            };
-            getToken();
-        }, [] ) //this means only use on mount, not on rerender
-
-    //Provides functionality for the authContext. Components within the AuthContext can call either of these functions.
-    //Calling one of these functions triggers a dispatch, meaning the reducer is called. That causes a re-render of the main component, which then again checks 
-    //If the token is still valid. Depending on that, the correct screen is shown.
-    const authContext = React.useMemo(
-        () => {let userFuncs = 
+    () => {
+        let tokenReceived, decodedToken = null;
+        const getToken = async () => {
+            try
             {
-                signIn: async userData => {
-                    //Do something with the userData (signing in, of course)
-                    console.log("Sign in called");
-                    const response = await callApi('/auth/login', userData);
-                    if(!response.success) //notice the NOT
-                    {
-                        return response; //go back inside login Screen and display error message
-                    }
-                    else
-                    {
-                        const token = response.token;
-                        try
-                        {
-                            await AsyncStorage.setItem('token', token);
-                        }
-                        catch(e)
-                        {
-                            console.log("Cannot save to local storage");
-                        }
-                        userFuncs.userName = userData.userName;
-                        dispatch({type: 'SIGN_IN', token: token});
-                        return null;
-                    }
-                },
-                signUp: async userData => {
-                    //Do something with the userData (signing up, of course)
-                    const response = await callApi('/auth/signup', userData);
-                    return response;
-                },
-                signOut: async () => {
-                    //Do something with the userData (signing out, of course)
-
-                    dispatch({type: 'SIGN_OUT'});
-                },
-                userName: state.userName //to avoid always calling the function
+                tokenReceived = await AsyncStorage.getItem('token');
+                
+                if (tokenReceived)
+                {
+                    await fetch(`${API_URI}/auth/validate`, {
+                        "method": "GET",
+                        "headers": {
+                            Authorization: `Bearer ${tokenReceived}`
+                                }
+                            }
+                        )
+                        .then(res => {return res.json()})
+                        .then(responseJSON => 
+                            {
+                                if(responseJSON.success)
+                                {
+                                    decodedToken = jwt_decode(tokenReceived);
+                                }
+                                else
+                                {
+                                    tokenReceived = null;
+                                }
+                            });
+                }
+                else
+                {
+                    tokenReceived = null;
+                }
             }
-        return userFuncs
-        }, [state.userName]
-    )
+            catch(e)
+            {
+                tokenReceived = null;
+            };
+            console.log("token:" + tokenReceived);
+            dispatch({type: 'SIGN_IN_RELOAD', token: tokenReceived, userName: decodedToken?.userName || ''});
+
+        };
+        getToken();
+    }, [] ) //this means only use on mount, not on rerender
+
+    
     const AuthStack = createStackNavigator();
+    const authContext = createFunctions([state, dispatch]);
+
     return (
         <AuthContext.Provider value={authContext}>
             <AuthStack.Navigator>
@@ -124,7 +108,7 @@ const AuthNavigator = () => {
                     options={{headerShown: false}}/>
                 <AuthStack.Screen name="SignUp" 
                     component={SignUpScreen}
-                    options={{headerShown: false}}/>
+                    options={{headerShown: true}}/>
                 </>
                 ) : (
                 <AuthStack.Screen name="Home" 

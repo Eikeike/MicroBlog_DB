@@ -4,7 +4,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {theme} from '../core/theme'
 import CustomButton from '../components/Button'
 import TextInput from '../components/TextInput'
-import AuthContext from '../context/AuthContext'
+import {AuthContext} from '../context/AuthContext'
 import { StyleSheet, Text, ScrollView, View, KeyboardAvoidingView, TouchableOpacity, Platform, Alert } from 'react-native'
 import {HelperText} from 'react-native-paper'
 
@@ -57,7 +57,7 @@ const SignUpScreen = ({navigation}) => {
             {
                 if(Platform.OS ==='web')
                 {
-                    alert(`That did not work. Server responded with ${response.message}`);
+                    alert(`That did not work. ${response.message}`);
                 }
                 Alert.alert(
                     "Oh no",

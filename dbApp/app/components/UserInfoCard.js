@@ -27,7 +27,7 @@ const UserInfoCard = (props) => {
     React.useEffect(
         () => {
             setUser(props.user);
-        }, []
+        }, [props]
     );
 
     const navigation = useNavigation();
@@ -42,6 +42,18 @@ const UserInfoCard = (props) => {
             const success = await callApi(`/user/follow/${user._id}`)
         }
         setFollowing(!following);
+    };
+
+    const edit = async () => {
+        if(editMode) //if pressed and in edit mode, edit
+        {
+            const editData = {
+                name: editableName,
+                bio: editableBio
+            }
+            callApi('/user/edit', editData);
+        }
+        setEditMode(!editMode)
     }
 
     return (
@@ -54,8 +66,7 @@ const UserInfoCard = (props) => {
                     <View style={styles.buttonContainer}>
                         {user.isRequestingUser ? (
                         <SwitchButton switchVar={editMode}
-                        onPress={() => {
-                            setEditMode(!editMode)}}
+                        onPress={edit}
                         >{editMode ? "Done" : "Edit"}</SwitchButton>) : 
 
                         (<SwitchButton switchVar={following}
