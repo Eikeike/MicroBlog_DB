@@ -6,6 +6,11 @@ Für eine Live-Demo der App, ohne etwas herunterladen zu müssen, funktioniert d
 
 Anmerkung: Aus Kompatibilitätsgründen funktioniert die Darstellung am besten für Pixel 4 oder höher.
 
+## Wie sehe ich etwas?
+Ich habe zwei Testnutzer erstellt, @eike und @franz. Am besten ist es, zunächst einen neuen Nutzer über Sign up zu erstellen. Da das Internet über die Demo sehr langsam ist, kann es sein, dass requests schnell einen timeout bekommen. In der Regel sollte es allerdings funktionieren. 
+
+Danach kann man in der Nutzersuche (mittlerer Tab auf der Unterseite) franz eingeben und schauen, wie diese beiden Nutzer interagiert haben. Daran werden alle Kernfunktionalitäten der App sichbar.
+
 # Nutzung
 
 ## Server
