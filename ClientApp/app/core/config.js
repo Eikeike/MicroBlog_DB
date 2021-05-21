@@ -1,0 +1,1 @@
+export const API_URI = 'https://microblog-db-proj.herokuapp.com'
