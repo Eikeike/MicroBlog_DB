@@ -19,7 +19,7 @@ Der Server ist über heroku deployed, die Datenbank wird über MongoDB Atlas ber
 5. ``npm start``
 
 ## App
-Die einfachste Möglichkeit, die App zu nutzen, besteht in der Nutzung über die  [Live-Demo](https://appetize.io/app/c6z4zye74phbxerpmmay8p22jw?device=pixel4&scale=75&orientation=portrait&osVersion=10.0). Alternativ kann auch die .apk - Datei heruntergeladen und auf einem x86 Android-Device oder Emulator zum Laufen gebracht werden.
+Die einfachste Möglichkeit, die App zu nutzen, besteht in der Nutzung über die  [Live-Demo](https://appetize.io/app/c6z4zye74phbxerpmmay8p22jw?device=pixel4&scale=75&orientation=portrait&osVersion=10.0). Alternativ kann auch die [.apk - Datei](https://github.com/Eikeike/MicroBlog_DB/releases) heruntergeladen und auf einem x86 Android-Device oder Emulator zum Laufen gebracht werden.
 Des Weiteren kann sie über den expo-client genutzt werden. Für die Installation im expo-client sind folgende Schritte notwendig:
 1. Installation von `expo-cli` ([Anleitung](https://docs.expo.io/get-started/installation/))
 2. Insatllation der notwendigen Pakete über `npm install`
