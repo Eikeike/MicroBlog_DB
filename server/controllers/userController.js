@@ -95,8 +95,8 @@ exports.getInfo = ash(
         populate: {path: 'author originalPost', select: 'name userName avatarURL', populate: {path: 'author', select: 'name userName avatarURL'}},
         options: { sort: { 'createdAt': -1 } } 
     })
-    .populate({path: 'followers'})
-    .populate({path: 'following'})
+    .populate({path: 'followers', select: '-password'})
+    .populate({path: 'following', select: '-password'})
     .lean()
     .exec();
 

@@ -31,14 +31,32 @@ describe('User authentication, all value combinations are parsed correctly', () 
                 expect(bcrypt.compare(mockUser.password, user.password)).to.be.true;
                 expect(mockUser.name).to.equal(user.name);
                 expect(mockUser.userName).to.equal(user.userName);
+            })
+        .catch((err) => {return err});
+    });
 
-        })
+    it('Single key not inserted twice', async () => {
+        const mockUser = {
+            name: "Testing",
+            userName: "testing",
+            password: "a1b2c3d4e5"
+          };
+        const user = await User.create(mockUser);
+        return request.post('/auth/signup')
+        .send(mockUser)
+        .then(
+            (res) => {
+                expect(res.status).to.equal(409);
+                const response = res.body;
+                expect(response.success).to.be.false;
+                expect(response.message).to.include("Username already taken")
+            })
         .catch((err) => {return err});
     });
 
     it('Login works', async () => {
         
-        const mockUser = await createOneUser();
+        let [mockUser, _] = await createOneUser();
         return request.post('/auth/login')
         .set("Authorization", "Bearer " + mockUser.token.toString())
         .send(mockUser)
@@ -56,7 +74,7 @@ describe('User authentication, all value combinations are parsed correctly', () 
 
     it('Login works with user not registered', async () => {
         
-        let mockUser = await createOneUser();
+        let [mockUser, _] = await createOneUser();
         mockUser.userName = 'notThere';
         return request.post('/auth/login')
         .set("Authorization", "Bearer " + mockUser.token.toString()) //Making the string invalid with random letter
@@ -71,7 +89,7 @@ describe('User authentication, all value combinations are parsed correctly', () 
 
     it('Login works with E-mail and password not given', async () => {
         
-            let mockUser = await createOneUser();
+            let [mockUser, _] = await createOneUser();
             mockUser.userName = null;
             return request.post('/auth/login')
             .set("Authorization", "Bearer " + mockUser.token.toString()) //Making the string invalid with random letter
@@ -86,7 +104,7 @@ describe('User authentication, all value combinations are parsed correctly', () 
 
         it('Login works with wrong password', async () => {
         
-            let mockUser = await createOneUser();
+            let [mockUser, _] = await createOneUser();
             mockUser.password = 'wrongValue';
             return request.post('/auth/login')
             .set("Authorization", "Bearer " + mockUser.token.toString()) //Making the string invalid with random letter
@@ -104,7 +122,7 @@ describe('token validation working', () => {
 
     it('Correct token', async () => {
 
-        let mockUser = await createOneUser();
+        let [mockUser, _] = await createOneUser();
         return request.get('/auth/validate')
         .set("Authorization", "Bearer " + mockUser.token.toString()) //Making the string invalid with random letter
         .then( (res) => {
@@ -116,7 +134,7 @@ describe('token validation working', () => {
 
     it('Unverifiable token', async () => {
         
-        let mockUser = await createOneUser();
+        let [mockUser, _] = await createOneUser();
         return request.get('/auth/validate')
         .set("Authorization", "Bearer " + mockUser.token.toString() + 'a') //Making the string invalid with random letter
         .then( (res) => {
@@ -129,7 +147,7 @@ describe('token validation working', () => {
 
     it('Expired login session', async () => {
         
-        let mockUser = await createOneUser();
+        let [mockUser, _] = await createOneUser();
         mockToken = jwt.sign({ id: mockUser._id, userName: mockUser.userName }, config.TOKEN_SECRET, { expiresIn: '-10s' }); //token already expired
         return request.get('/auth/validate')
         .set("Authorization", "Bearer " + mockToken.toString())

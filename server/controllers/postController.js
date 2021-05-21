@@ -127,7 +127,7 @@ exports.toggleRepost = ash(
 exports.getComments = ash(
     async (req, res, next) => {
         const commentIds = req.body.comments;
-        //user gives us an array of comment ids, we fill them. Simple as that
+        //user gives us an array of comment ids, we fill them
         const getPost = async (id) => {
             return await Post.findById(id)
             .populate({path: 'author', select: 'name userName avatarURL'})
@@ -142,7 +142,6 @@ exports.getComments = ash(
     {
         return next({statusCode: 404, message: 'post not found!'});
     };
-    console.log(comments);
     res.status(201).json({success: true, comments: comments})
 
     }
