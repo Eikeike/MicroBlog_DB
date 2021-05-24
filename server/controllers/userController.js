@@ -122,7 +122,11 @@ exports.getComments = ash(
     .populate({
         path: 'posts',
         match: { postType: {$elemMatch: {$eq:'comment'}}},
-        populate: {path: 'author originalPost', select: 'name userName avatarURL', populate: {path: 'author', select: 'name userName avatarURL'}},
+        populate: 
+            [
+            {path: 'originalPost', populate: {path: 'author', select: 'name userName avatarURL'}},
+            {path: 'author'}
+            ],
         options: { sort: { 'createdAt': -1 } } 
     })
     .lean()
@@ -162,7 +166,7 @@ exports.getLikes = ash(
     }
 
     posts.forEach(post => {
-        post.isLiked = true;
+        post.isLiked = (JSON.stringify(post.likedBy).includes(req.requestingUser._id));
         post.isReposted = (JSON.stringify(post.repostedBy).includes(req.requestingUser._id) );
     })
 

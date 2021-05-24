@@ -11,5 +11,6 @@ npm-debug.*
 *.orig.*
 web-build/
 Procfile
+bin/
 # macOS
 .DS_Store
