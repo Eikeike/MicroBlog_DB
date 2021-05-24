@@ -1,8 +1,0 @@
-GET  http://192.168.178.64:3000/user/getInfo/testing HTTP/1.1
-content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYwYTY1N2U3MTU0NzhhMzRhY2JjZjY1ZiIsInVzZXJOYW1lIjoidGVzdCIsImlhdCI6MTYyMTUxNDIyOSwiZXhwIjoxNjI0MTA2MjI5fQ.Xuw-fVzQ9M7i9muspeqbeYoI69sKXl6hHQmnT5pT9CI
-
-# {
-#     "userName": "test",
-#     "password": "12345"
-# }
